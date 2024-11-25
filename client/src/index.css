@@ -1,0 +1,10 @@
+@font-face {
+  font-family: "Wildly Sans";
+  src: url("/Wildy-Sans.ttf") format("truetype"),
+    url("/Wildy-Sans.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
