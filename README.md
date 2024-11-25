@@ -17,6 +17,7 @@
 - Insert your OpenAI key in: /server/routes/userRoutes and server/nudgeSys/reminderUtils.js
 - Generate a JWT token to insert in /server/middleware/authJwtToken.js
 - Insert MongoDB connection string in /server/mongoConfig/connection.js
+
 (fyi recommend making a .env file instead)
 
 # Files
