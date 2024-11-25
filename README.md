@@ -1,4 +1,4 @@
-# amika-app-v2
+# amika-fluid-v3
 
 # How to run locally
 
