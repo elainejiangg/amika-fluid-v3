@@ -12,7 +12,7 @@
    ```
 3. Open localhost:5173
 
-# Keys (OpenAI, MongoDB)
+# Keys (OpenAI, JWT, MongoDB)
 
 - Insert your OpenAI key in: /server/routes/userRoutes and server/nudgeSys/reminderUtils.js
 - Generate a JWT token to insert in /server/middleware/authJwtToken.js
