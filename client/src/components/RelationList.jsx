@@ -1,3 +1,17 @@
+/**
+ * This component displays a list of relations for the user. It fetches the relations
+ * from the backend and renders a list of RelationCard components for each relation.
+ * The component also provides functionality to add new relations and manage existing ones.
+ *
+ * Key functionalities include:
+ * - Fetching the user's relations from the backend.
+ * - Displaying each relation in a card format using the RelationCard component.
+ * - Providing a button to add new relations.
+ * - Handling loading states and error messages during data fetching.
+ *
+ * The component utilizes React hooks for state management and side effects.
+ */
+
 import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import RelationCard from "./RelationCard";
@@ -112,7 +126,6 @@ export default function RelationsList() {
         return "absolute top-1/4 left-1/2 transform -translate-x-1/4 -translate-y-3/4 flex justify-center";
       case 2:
         return "absolute bottom-0 right-0 transform -translate-x-1/4 mb-4 flex justify-center";
-      
     }
   };
 

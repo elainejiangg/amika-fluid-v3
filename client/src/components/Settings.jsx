@@ -1,32 +1,27 @@
+/**
+ * Settings.jsx
+ *
+ * This component represents the settings page for the user. It allows users to manage
+ * their account settings, including updating their email, managing reminders, and viewing
+ * their relations. The component fetches user data from the backend and provides forms
+ * for updating user information.
+ *
+ * Key functionalities include:
+ * - Fetching user relations and email from the backend.
+ * - Allowing users to update their email address.
+ * - Managing reminders and their settings.
+ * - Displaying user instructions and managing the overlay for user guidance.
+ *
+ * The component utilizes React hooks for state management and side effects.
+ */
+
 import React, { useState, useEffect, useContext } from "react";
-import CustomRecurrence from "./RelationFormComponents/Modals/CustomRecurrence";
 import DatePicker from "react-datepicker";
 import { RRule } from "rrule";
 import "react-datepicker/dist/react-datepicker.css";
-import OtherMethod from "./RelationFormComponents/Modals/OtherMethod";
 import { AuthContext } from "../AuthContext";
 import { OverlayContext } from "../OverlayProvider";
 import Overlay from "./Overlay"; // Import the Overlay component
-
-const reminderOptions = [
-  "None",
-  "Second",
-  "Minute",
-  "Daily",
-  "Weekly",
-  "Monthly",
-  "Custom",
-];
-const methodOptions = ["In-Person", "Text", "Call", "Other"];
-
-const parseReminders = (remindersString) => {
-  if (!remindersString) return [];
-  return remindersString.split(", ").map((reminder) => {
-    const [method, ...timeParts] = reminder.split(" ");
-    const time = timeParts.join(" ");
-    return { method, time, showOtherMethodInput: method === "Other" };
-  });
-};
 
 const stringifyReminders = (remindersArray) => {
   return remindersArray
@@ -39,17 +34,6 @@ const Settings = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [email, setEmail] = useState("");
   const [originalEmail, setOriginalEmail] = useState("");
-
-  const [isCustomRecurrenceModalOpen, setIsCustomRecurrenceModalOpen] =
-    useState(false);
-  const [isOtherModalOpen, setIsOtherModalOpen] = useState(false);
-  const [initialRecurrence, setInitialRecurrence] = useState({
-    num: 1,
-    unit: "day",
-  });
-  const [initialMethod, setInitialMethod] = useState("");
-  const [currentRelationIndex, setCurrentRelationIndex] = useState(null);
-  const [currentReminderIndex, setCurrentReminderIndex] = useState(null);
   const { profile } = useContext(AuthContext); // get user relation
   const [errors, setErrors] = useState({}); // for validating reminder start and end dates
   const [changedRelations, setChangedRelations] = useState({});
@@ -204,7 +188,6 @@ const Settings = () => {
     relation.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  //COMPONENTS:
   const AddReminderButton = ({ onClick }) => (
     <tr>
       <td colSpan="4 " className="text-right">
@@ -751,49 +734,7 @@ const Settings = () => {
                                     />
                                   </div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  {/* <div>
-                                  <h3>Occurrences:</h3>
-                                  <ul>
-                                    {(reminder.showAll
-                                      ? reminder.occurrences
-                                      : reminder.occurrences?.slice(0, 3)
-                                    )?.map((date, dateIndex) => {
-                                      const dateObject = new Date(date);
-                                      return (
-                                        <li key={dateIndex}>
-                                          {dateObject.toLocaleDateString([], {
-                                            weekday: "short",
-                                          })}{" "}
-                                          {dateObject.toLocaleDateString()}{" "}
-                                          {dateObject.toLocaleTimeString([], {
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                            hour12: true,
-                                          })}{" "}
-                                        </li>
-                                      );
-                                    })}
-                                  </ul>
-                                  {reminder.occurrences?.length > 3 && (
-                                    <button
-                                      className="text-blue-500"
-                                      type="button"
-                                      onClick={() =>
-                                        handleReminderChange(
-                                          reminderIndex,
-                                          "showAll",
-                                          !reminder.showAll
-                                        )
-                                      }
-                                    >
-                                      {reminder.showAll
-                                        ? "Show Less"
-                                        : "Show All"}
-                                    </button>
-                                  )}
-                                </div> */}
-                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap"></td>
                                 <td>
                                   <button
                                     className="text-red-500"

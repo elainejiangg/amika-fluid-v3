@@ -1,24 +1,13 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { googleLogout } from "@react-oauth/google";
 import { AuthContext } from "../AuthContext";
 import { OverlayContext } from "../OverlayProvider";
 
 export default function Navbar({ toggleNavbar, xVisible }) {
   const { profile, setProfile } = useContext(AuthContext);
-  const { userInfo, setUserInfo } = useState("");
   const { startOverlaySequence } = useContext(OverlayContext); // Use OverlayContext
   const navigate = useNavigate(); // Initialize useNavigate
-
-  const getGoogleDriveImageUrl = (url) => {
-    const match = url.match(/\/d\/(.*?)\//);
-    if (match) {
-      const imageUrl = `https://drive.google.com/thumbnail?id=${match[1]}`;
-      console.log("Constructed Google Drive Image URL:", imageUrl);
-      return imageUrl;
-    }
-    return url;
-  };
 
   const logOut = () => {
     googleLogout();

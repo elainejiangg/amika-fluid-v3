@@ -1,3 +1,15 @@
+/**
+ * This component provides an overlay interface for tutorial walkthroughs within the application.
+ * It displays instructional messages to guide users through various features and functionalities.
+ *
+ * Key functionalities include:
+ * - Displaying step-by-step instructions for users.
+ * - Allowing users to navigate through the tutorial using "Next" and "Skip" buttons.
+ * - Positioning the overlay based on the current step to highlight relevant UI elements.
+ *
+ * The component utilizes React props to receive instructions and manage the current step.
+ */
+
 import React from "react";
 import AmikaFace from "../assets/Amika_face.png"; // Import the image
 

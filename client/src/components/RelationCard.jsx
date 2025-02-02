@@ -1,5 +1,19 @@
-// export default RelationRow;
-import React, { useContext, useState, useEffect } from "react";
+/**
+ * RelationCard.jsx
+ *
+ * This component represents a card interface for displaying information about a user's relation.
+ * It shows details such as the relation's name, picture, contact frequency, and interaction history.
+ * The component also allows users to edit or delete the relation.
+ *
+ * Key functionalities include:
+ * - Displaying relation details including name, picture, and overview.
+ * - Toggling the visibility of reminder details.
+ * - Handling user interactions for editing and deleting relations.
+ *
+ * The component utilizes React hooks for state management and context for user authentication.
+ */
+
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
 import { RRule } from "rrule";
@@ -14,10 +28,11 @@ const reminderFreqMap = {
 const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // To display each relation row in the table
-const RelationRow = (props) => {
-  const [expandedReminders, setExpandedReminders] = useState({});
-  const { profile } = useContext(AuthContext); // get user profile
+const RelationCard = (props) => {
+  const [expandedReminders, setExpandedReminders] = useState({}); // State to manage expanded reminder details
+  const { profile } = useContext(AuthContext); // Get user profile from AuthContext
 
+  // Function to construct Google Drive image URL from the provided URL
   const getGoogleDriveImageUrl = (url) => {
     const match = url.match(/\/d\/(.*?)\//);
     if (match) {
@@ -25,13 +40,14 @@ const RelationRow = (props) => {
       console.log("Constructed Google Drive Image URL:", imageUrl);
       return imageUrl;
     }
-    return url;
+    return url; // Return original URL if no match found
   };
 
+  // Function to toggle the visibility of reminder details
   const toggleReminderDetails = (index) => {
     setExpandedReminders((prev) => ({
       ...prev,
-      [index]: !prev[index],
+      [index]: !prev[index], // Toggle the expanded state for the specific reminder
     }));
   };
 
@@ -41,9 +57,8 @@ const RelationRow = (props) => {
         <div className="flex bg-white w-1/4 rounded-2xl ml-2 mt-2 justify-center overflow-hidden">
           {props.relation.picture ? (
             <img
-              // src="https://drive.google.com/thumbnail?id=13m-LgN_qlUIi1JHTNPjcgw0rDXjqEKQ1"
               src={getGoogleDriveImageUrl(props.relation.picture)}
-              className=" w-full h-full object-cover"
+              className="w-full h-full object-cover"
               alt="Relation"
               onError={(e) => console.error("Image failed to load:", e)}
             />
@@ -59,7 +74,7 @@ const RelationRow = (props) => {
             </svg>
           )}
         </div>
-        <div className=" w-3/4 pl-4 pt-2 overflow-y-scroll">
+        <div className="w-3/4 pl-4 pt-2 overflow-y-scroll">
           <p className="font-bold text-md">
             {props.relation.name}{" "}
             {props.relation.pronouns &&
@@ -74,7 +89,7 @@ const RelationRow = (props) => {
         </div>
       </div>
       <div className="mt-5 bg-white rounded-xl h-52 overflow-y-scroll">
-        <div className="p-4 ">
+        <div className="p-4">
           <h2 className="font-bold">Info</h2>
           <ul className="list-disc ml-4 text-xs">
             {props.relation.contact_frequency[0] && (
@@ -167,7 +182,7 @@ const RelationRow = (props) => {
                             })}
                           </li>
                           <li>
-                            Occurences:{" "}
+                            Occurrences:{" "}
                             {reminder.occurrences
                               .map((occurrence, index) =>
                                 new Date(occurrence).toLocaleString("en-US", {
@@ -195,7 +210,7 @@ const RelationRow = (props) => {
           <button
             type="button"
             onClick={() => {
-              props.deleteRelation(props.relation._id);
+              props.deleteRelation(props.relation._id); // Call deleteRelation prop function
             }}
           >
             Delete
@@ -213,4 +228,4 @@ const RelationRow = (props) => {
   );
 };
 
-export default RelationRow;
+export default RelationCard;

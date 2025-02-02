@@ -1,3 +1,18 @@
+/**
+ * This component provides a form interface for users to create or edit their relations.
+ * It allows users to input details such as name, picture, pronouns, relationship type,
+ * contact frequency, and reminders. The component handles form submission and validation,
+ * and communicates with the backend to save the relation data.
+ *
+ * Key functionalities include:
+ * - Managing form state and validation for user inputs.
+ * - Fetching existing relation data for editing purposes.
+ * - Sending relation data to the backend for creation or updates.
+ * - Handling reminders and contact frequency settings.
+ *
+ * The component utilizes React hooks for state management and side effects.
+ */
+
 import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
@@ -6,7 +21,6 @@ import Pronouns from "./RelationFormComponents/Pronouns";
 import Overview from "./RelationFormComponents/Overview";
 import RelationshipType from "./RelationFormComponents/RelationshipType";
 import ContactHistory from "./RelationFormComponents/ContactHistory";
-// import ContactFrequency from "./RelationFormComponents/ContactFrequency";
 import ReminderEnabled from "./RelationFormComponents/ReminderEnabled";
 import ContactFrequency from "./RelationFormComponents/ContactFrequency";
 import ReminderFrequency from "./RelationFormComponents/ReminderFrequency";
@@ -32,13 +46,13 @@ export default function RelationForm() {
     contact_history: [],
     reminder_frequency: [],
     reminder_enabled: false,
-  });
-  const [isNew, setIsNew] = useState(true); // identifies if creating new record
-  const params = useParams();
-  const navigate = useNavigate();
-  const { profile } = useContext(AuthContext);
+  }); // State to hold form data
+  const [isNew, setIsNew] = useState(true); // State to track if the form is for a new relation
+  const params = useParams(); // Get URL parameters
+  const navigate = useNavigate(); // Hook to programmatically navigate
+  const { profile } = useContext(AuthContext); // Access user profile from AuthContext
+  const { overlayStep, setOverlayStep } = useContext(OverlayContext); // Access overlay context
 
-  const { overlayStep, setOverlayStep } = useContext(OverlayContext); // Use OverlayContext
   const instructions = [
     "This is the form you will reach after clicking '+'. Here, you can manually input information about a relation!",
     "You can fill out your relation's name, upload a picture for the relation, specify their pronouns, describe the relationship type, provide an overview of the relation, set the contact history and frequency, enable reminders if needed",
@@ -55,58 +69,63 @@ export default function RelationForm() {
     }
   };
 
+  // Function to fetch existing relation data for editing
   useEffect(() => {
     async function fetchData() {
-      const id = params.id?.toString() || undefined;
-      if (!id) return;
-      setIsNew(false);
+      const id = params.id?.toString() || undefined; // Get relation ID from URL
+      if (!id) return; // Exit if no ID is provided
+      setIsNew(false); // Set form to edit mode
       const response = await fetch(
         `http://localhost:5050/users/${profile.id}/relations/${id}`
       );
+
       if (!response.ok) {
         const message = `An error has occurred: ${response.statusText}`;
         console.error(message);
-        return;
+        return; // Exit if response is not ok
       }
-      const record = await response.json();
+
+      const record = await response.json(); // Parse response data
       if (!record) {
         console.warn(`Record with id ${id} not found`);
-        navigate("/relations");
+        navigate("/relations"); // Navigate back if record not found
         return;
       }
-      setForm(record);
-    }
-    fetchData();
-  }, [params.id, navigate, profile]);
 
-  // These methods will update the state properties.
+      setForm(record); // Set form data with fetched record
+    }
+    fetchData(); // Call fetchData function
+  }, [params.id, navigate, profile]); // Dependencies for useEffect
+
+  // Function to update form state
   function updateForm(value) {
     return setForm((prev) => {
-      return { ...prev, ...value };
+      return { ...prev, ...value }; // Merge previous form state with new values
     });
   }
 
+  // Function to generate occurrences for reminders
   const generateOccurrences = (reminder) => {
     const freqItem = reminder.frequency;
-    if (!freqItem) return [];
+    if (!freqItem) return []; // Return empty array if no frequency item
 
     if (freqItem.frequency === "Custom") {
       const customOccurrences = [];
       let currentDate = new Date(freqItem.startDate);
       while (currentDate <= freqItem.endDate) {
-        customOccurrences.push(new Date(currentDate));
+        customOccurrences.push(new Date(currentDate)); // Add current date to occurrences
         currentDate.setDate(
-          currentDate.getDate() + freqItem.customRecurrence.num
+          currentDate.getDate() + freqItem.customRecurrence.num // Increment date by custom recurrence
         );
       }
-      return customOccurrences;
+      return customOccurrences; // Return custom occurrences
     } else {
       const freqStartDate = new Date(freqItem.startDate);
       const freqTime = new Date(freqItem.time);
       const freqEndDate = new Date(freqItem.endDate);
 
       const ruleOptions = {
-        freq: parseInt(freqItem.frequency, 10),
+        freq: parseInt(freqItem.frequency, 10), // Parse frequency
         dtstart: new Date(
           freqStartDate.getFullYear(),
           freqStartDate.getMonth(),
@@ -128,21 +147,23 @@ export default function RelationForm() {
                 .filter(Boolean)
             : null,
       };
-      const rule = new RRule(ruleOptions);
-      return rule.all();
+      const rule = new RRule(ruleOptions); // Create RRule instance
+      return rule.all(); // Return all occurrences
     }
   };
 
+  // Function to handle form submission
   async function onSubmit(e) {
-    e.preventDefault();
-    const relation = { ...form };
+    e.preventDefault(); // Prevent default form submission behavior
+    const relation = { ...form }; // Create a copy of the form data
     // Generate occurrences for each reminder
     relation.reminder_frequency = relation.reminder_frequency.map(
       (reminder) => ({
         ...reminder,
-        occurrences: generateOccurrences(reminder),
+        occurrences: generateOccurrences(reminder), // Generate occurrences for reminders
       })
     );
+
     try {
       let response;
       if (isNew) {
@@ -153,7 +174,7 @@ export default function RelationForm() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(relation),
+            body: JSON.stringify(relation), // Send relation data as JSON
           }
         );
       } else {
@@ -164,17 +185,18 @@ export default function RelationForm() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(relation),
+            body: JSON.stringify(relation), // Send updated relation data as JSON
           }
         );
       }
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`); // Throw error if response is not ok
       }
     } catch (error) {
-      console.error("A problem occurred adding or updating a record: ", error);
+      console.error("A problem occurred adding or updating a record: ", error); // Log error
     } finally {
+      // Reset form state after submission
       setForm({
         name: "",
         picture: "",
@@ -186,24 +208,26 @@ export default function RelationForm() {
         reminder_frequency: [],
         reminder_enabled: false,
       });
-      navigate("/relations");
+      navigate("/relations"); // Navigate back to relations page
     }
   }
 
+  // Function to handle next step in overlay instructions
   const handleNext = () => {
     if (overlayStep < instructions.length - 1) {
-      setOverlayStep(overlayStep + 1);
+      setOverlayStep(overlayStep + 1); // Increment overlay step
     } else {
-      setOverlayStep(0);
-      navigate("/settings");
+      setOverlayStep(0); // Reset overlay step
+      navigate("/settings"); // Navigate to settings page
     }
   };
 
+  // Function to skip overlay instructions
   const handleSkip = () => {
     setOverlayStep(null); // Hide overlay
   };
 
-  // This following section will display the form that takes the input from the user.
+  // Render the form
   return (
     <>
       {overlayStep !== null && (

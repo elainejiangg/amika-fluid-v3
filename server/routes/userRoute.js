@@ -1,7 +1,5 @@
 import express from "express";
 import { User } from "../mongooseModels/userSchema.js"; // import schemas ( & subschemas)
-import { sendEmail } from "../nudgeSys/emailService.js";
-import { fetchAndScheduleReminders } from "../nudgeSys/reminderUtils.js";
 import { OpenAI } from "openai";
 import { verifyToken } from "../middleware/authJwtToken.js"; // Import the verifyToken middleware
 
@@ -10,7 +8,10 @@ const openai = new OpenAI({
   apiKey: "***",
 });
 
+/////////////////////////////////////////////////////
 ///////////////////// ENDPOINTS /////////////////////
+/////////////////////////////////////////////////////
+
 // Add the verify-token endpoint
 router.post("/auth/verify-token", verifyToken, (req, res) => {
   res
@@ -53,8 +54,6 @@ router.post("/users", async (req, res) => {
       model: "gpt-4o",
     });
     const first_newAssistantId = first_assistant.id;
-    // const first_thread = await openai.beta.threads.create();
-    // const first_newThreadId = first_thread.id;
 
     const second_assistant = await openai.beta.assistants.create({
       name: "DatabaseUpdater",
@@ -92,8 +91,6 @@ router.post("/users", async (req, res) => {
       model: "gpt-4o",
     });
     const second_newAssistantId = second_assistant.id;
-    // const second_thread = await openai.beta.threads.create();
-    // const second_newThreadId = second_thread.id;
 
     const newUserData = {
       googleId: req.body.googleId,
@@ -238,20 +235,6 @@ router.get("/users/:googleId/second_assistant_id", async (req, res) => {
   }
 });
 
-// UPDATE USER ASSISTANT ID [ /users/:googleId/assistant_id ]
-// router.patch("/users/:googleId/:assistant_id", async (req, res) => {
-//   try {
-//     const user = await User.findOne({ googleId: req.params.googleId });
-//     if (!user) return res.status(404).send("USER NOT FOUND");
-
-//     user.assistant_id = req.params.assistant_id;
-//     await user.save();
-//     res.status(200).send();
-//   } catch (err) {
-//     res.status(500).send("ERROR UPDATING USER ASSISTANT ID");
-//   }
-// });
-
 // GENERATE NEW USER THREAD IDS [ /users/:googleId/thread_ids ]
 router.post("/users/:googleId/thread_ids", async (req, res) => {
   try {
@@ -271,22 +254,6 @@ router.post("/users/:googleId/thread_ids", async (req, res) => {
     res.status(500).send("ERROR UPDATING USER THREAD ID");
   }
 });
-
-// GENERATE NEW USER SECOND THREAD ID & UPDATE USER SECOND THREAD IDS [ /users/:googleId/second_thread_id ]
-// router.post("/users/:googleId/second_thread_id", async (req, res) => {
-//   try {
-//     const user = await User.findOne({ googleId: req.params.googleId });
-//     consol;
-//     if (!user) return res.status(404).send("USER NOT FOUND");
-
-//     // Create a new thread using OpenAI API
-
-//     await user.save();
-//     res.status(200).send();
-//   } catch (err) {
-//     res.status(500).send("ERROR UPDATING USER THREAD ID");
-//   }
-// });
 
 // GET MOST RECENT USER FIRST THREAD ID [ /users/:googleId/first_thread_id ]
 router.get("/users/:googleId/first_thread_id", async (req, res) => {
@@ -329,19 +296,6 @@ router.get("/users/:googleId/second_thread_id", async (req, res) => {
     res.status(500).send("ERROR GETTING MOST RECENT FIRST THREAD ID");
   }
 });
-
-// GET USER FIRST THREAD ID [ /users/:googleId/thread_id ]
-// router.get("/users/:googleId/first_thread_id", async (req, res) => {
-//   try {
-//     const user = await User.findOne({ googleId: req.params.googleId });
-//     if (!user) return res.status(404).send("USER NOT FOUND");
-
-//     const threadId = user.first_thread_id;
-//     res.status(200).send(threadId);
-//   } catch (err) {
-//     res.status(500).send("ERROR UPDATING USER THREAD ID");
-//   }
-// });
 
 // GET ALL RELATIONS of a user [ /<googleId>/relations ]
 router.get("/users/:googleId/relations", async (req, res) => {
@@ -458,54 +412,10 @@ router.get("/users/:googleId/reminders", async (req, res) => {
     const relations = user.relations.filter(
       (relation) => relation.reminder_enabled
     );
-    // const occurrences = relations.map(
-    //   (relation) => relation.reminder_frequency
-    // );
     res.status(200).send(relations);
   } catch (err) {
     res.status(500).send("ERROR GETTING OCCURRENCES");
   }
 });
-
-// router.post("/send-test-email", async (req, res) => {
-//   try {
-//     const { to, subject, text } = req.body;
-//     await sendEmail(to, subject, text);
-//     res.status(200).send("Email sent successfully");
-//   } catch (err) {
-//     res.status(500).send("ERROR SENDING EMAIL");
-//   }
-// });
-
-// // GET ALL RELATIONS of a user [ /<googleId>/relations ]
-// router.get("/users/:googleId/relations", async (req, res) => {
-//   try {
-//     let user = await User.findOne({ googleId: req.params.googleId });
-//     if (!user) return res.status(404).send("USER NOT FOUND");
-
-//     let relations = user.relations;
-//     res.status(200).send(relations);
-//   } catch (err) {
-//     res.status(500).send("ERROR GETTING RELATIONS!");
-//   }
-// });
-
-// LOGIN USER [ /login ]
-// router.post("/login", async (req, res) => {
-//   try {
-//     const { googleId } = req.body;
-//     const user = await User.findOne({ googleId });
-//     if (!user) {
-//       return res.status(404).send("USER NOT FOUND");
-//     }
-//     console.log(googleId);
-//     // Fetch and schedule reminders after login
-//     // await fetchAndScheduleReminders(googleId);
-//     console.log("Successfully  fetch and schedule!");
-//     res.status(200).send("User logged in and reminders scheduled");
-//   } catch (err) {
-//     res.status(500).send("ERROR LOGGING IN USER");
-//   }
-// });
 
 export default router;

@@ -1,30 +1,46 @@
+/**
+ * Login.jsx
+ *
+ * This component represents the login interface for users to authenticate
+ * using Google or a JWT token link. It manages user state, handles login
+ * processes, and navigates users to the appropriate pages based on their
+ * authentication status.
+ *
+ * Key functionalities include:
+ * - Managing user state and error messages.
+ * - Handling login via Google OAuth and JWT token verification.
+ * - Navigating users to different pages based on their login status.
+ * - Displaying loading indicators and error messages during the login process.
+ *
+ * The component utilizes React hooks for state management and side effects.
+ */
+
 import React, { useState, useEffect, useContext } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
-import { set } from "lodash";
 import AmikaFace from "../assets/Amika_face.png";
 
 function Login() {
-  const [user, setUser] = useState(null);
-  const { profile, setProfile } = useContext(AuthContext);
-  const [fromLink, setFromLink] = useState(false);
-  const [promptChatMsg, setPromptChatMsg] = useState(null);
-  const [newUser, setNewUser] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [creatingAccount, setCreatingAccount] = useState(false);
+  const [user, setUser] = useState(null); // State to hold user information
+  const { profile, setProfile } = useContext(AuthContext); // Access profile and setProfile from AuthContext
+  const [fromLink, setFromLink] = useState(false); // State to track if login is from a link
+  const [promptChatMsg, setPromptChatMsg] = useState(null); // State for chat prompt message
+  const [newUser, setNewUser] = useState(false); // State to track if the user is new
+  const [errorMsg, setErrorMsg] = useState(""); // State for error messages
+  const [creatingAccount, setCreatingAccount] = useState(false); // State to track account creation
+  const navigate = useNavigate(); // Hook to programmatically navigate
 
-  const navigate = useNavigate();
-
+  // Google login configuration
   const login = useGoogleLogin({
-    onSuccess: (codeResponse) => setUser(codeResponse),
-    onError: (error) => console.log("Login Failed: ", error),
+    onSuccess: (codeResponse) => setUser(codeResponse), // Set user on successful login
+    onError: (error) => console.log("Login Failed: ", error), // Log error on login failure
   });
 
-  //login via jwt token link sent to email
+  // Effect to handle login via JWT token link sent to email
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token");
+    const token = urlParams.get("token"); // Extract token from URL parameters
 
     if (token) {
       // Use the token to authenticate the user
@@ -36,14 +52,14 @@ function Login() {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`, // Set authorization header with token
               },
             }
           );
 
-          const data = await response.json();
+          const data = await response.json(); // Parse response data
           if (data.success) {
-            const googleId = data.user.googleId;
+            const googleId = data.user.googleId; // Get Google ID from response
             setPromptChatMsg(
               "Pretend this is an email you sent to the user. Continue the conversation as Amika (NOTE: not as in email format but in a conversationally chat with the user/the person that the email is addressed to), inquiring about their recent interactions with the specified relation or if they did not interact with the specified relation suggest ways that the user can contact them (conversations for example). Treat this as the start of a new conversation. The following is the email and the last line is whether the user has interacted with the specified relation. Again, do not respond in an email format" +
                 data.user.emailContent
@@ -52,19 +68,19 @@ function Login() {
             console.log("EMAIL CONTENTS: ", promptChatMsg);
             console.log("EMAIL BODY: ", data.user.emailContent);
 
+            // Fetch user information using Google ID
             const userInfoResponse = await fetch(
               `http://localhost:5050/users/${googleId}/info`
             );
-            console.log("USER INFO: ", userInfoResponse);
             const userInfo = await userInfoResponse.json();
-            console.log("***userInfo: ", userInfo);
             await setProfile({
               id: googleId,
               name: userInfo.name,
               email: userInfo.email,
-              picture: "test",
+              picture: "test", // Placeholder for user picture
             });
 
+            // Fetch first and second thread IDs for the user
             await fetch(
               `http://localhost:5050/users/${googleId}/first_thread_id`,
               {
@@ -78,9 +94,7 @@ function Login() {
                 method: "POST",
               }
             );
-            console.log("PRFOILE", profile);
-            // setUser({ access_token: token });
-            setFromLink(true);
+            setFromLink(true); // Set fromLink to true if login is successful
           } else {
             console.log("Token verification failed");
           }
@@ -89,29 +103,20 @@ function Login() {
         }
       })();
     }
-  }, []);
+  }, []); // Empty dependency array to run effect only once
 
-  // Reset creatingAccount state when user changes
-  // useEffect(() => {
-  //   if (user) {
-  //     setCreatingAccount(false);
-  //   }
-  // }, [user]);
-
-  // ! Should check if on chat page first
+  // Effect to navigate to chat page if promptChatMsg is set
   useEffect(() => {
     if (promptChatMsg) {
-      console.log("22 EMAIL CONTENTS: ", promptChatMsg);
-      navigate("/chat", { state: { promptChatMsg } });
+      navigate("/chat", { state: { promptChatMsg } }); // Navigate to chat with prompt message
     }
   }, [promptChatMsg, navigate]);
 
-  //regular login
+  // Effect to handle regular login
   useEffect(() => {
     if (user) {
       const fetchUserProfile = async () => {
         try {
-          console.log("Access Token:", user.access_token);
           const response = await fetch(
             `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`,
             {
@@ -121,7 +126,7 @@ function Login() {
               },
             }
           );
-          const data = await response.json();
+          const data = await response.json(); // Parse user profile data
 
           // Check if user is new
           const isNewResponse = await fetch(
@@ -131,50 +136,21 @@ function Login() {
 
           if (isNewData.isNew) {
             if (creatingAccount) {
-              console.log("new account", creatingAccount);
-              console.log("new user", newUser);
-
-              setNewUser(true);
-              // Call the new route to store the user profile
-              // await fetch("http://localhost:5050/users", {
-              //   method: "POST",
-              //   headers: {
-              //     "Content-Type": "application/json",
-              //   },
-              //   body: JSON.stringify({
-              //     googleId: data.id,
-              //     name: data.name,
-              //     email: data.email,
-              //     picture: data.picture,
-              //   }),
-              // });
-
-              // try {
-              //   await fetch(
-              //     `http://localhost:5050/users/${data.id}/thread_ids`,
-              //     {
-              //       method: "POST",
-              //     }
-              //   );
-              // } catch (err) {
-              //   console.log(`ERROR GENERATING NEW THREAD IDS ${err}`);
-              // }
+              setNewUser(true); // Set newUser to true if creating account
               await setProfile({
                 id: data.id,
                 name: data.name,
                 email: data.email,
                 picture: data.picture,
               });
-              console.log("PROFILE:", profile.email);
-              navigate("/new-user");
+              navigate("/new-user"); // Navigate to new user page
             } else {
-              setNewUser(true);
-              setErrorMsg("No account found");
-              set;
+              setNewUser(true); // Set newUser to true if account exists
+              setErrorMsg("No account found"); // Set error message
             }
           } else {
             if (creatingAccount) {
-              setErrorMsg("Account already exists with user");
+              setErrorMsg("Account already exists with user"); // Set error message for existing account
             } else {
               await setProfile({
                 id: data.id,
@@ -182,7 +158,7 @@ function Login() {
                 email: data.email,
                 picture: data.picture,
               });
-              navigate("/relations");
+              navigate("/relations"); // Navigate to relations page
             }
           }
         } catch (err) {
@@ -190,9 +166,9 @@ function Login() {
         }
       };
 
-      fetchUserProfile();
+      fetchUserProfile(); // Fetch user profile on successful login
     }
-  }, [user]);
+  }, [user]); // Dependency on user state
 
   return (
     <div className="flex flex-col justify-center items-center h-screen w-screen bg-gradient-to-tr from-indigo-200 via-white to-violet-100">
@@ -211,41 +187,39 @@ function Login() {
       </div>
       <p
         className="text-center leading-4 text-2xl pb-2 w-1/2 min-w-96 tracking-tighter"
-        // className="px-8 py-4 flex text-center items-center mb-8 text-2xl text-sky-950 border rounded-md border-cyan-800 font-bold w-1/2 min-w-72"
         style={{ fontFamily: "Wildly Sans, sans-serif" }}
       >
         your personal ai assistant to help you keep in touch with your Loved
         ones
       </p>
-
       {profile == null && !fromLink && !newUser ? (
         <>
           <button
             onClick={() => {
-              setCreatingAccount(false);
-              login();
+              setCreatingAccount(false); // Set creatingAccount to false for login
+              login(); // Trigger Google login
             }}
             className="mt-4 py-2 w-1/6 min-w-56 leading-6 text-md -translate-y-3 mb-0 lg:mt-5 items-center justify-center bg-sky-950 font-bold text-white border border-slate-200 hover:border-blue-200 rounded-xl px-4 py-1 hover:bg-sky-100 hover:text-sky-950 hover:border hover:border-sky-950"
-            // style={{ fontFamily: "Wildly Sans, sans-serif" }}
           >
             Sign in with Google
           </button>
           <button
             onClick={() => {
-              setCreatingAccount(true);
-              login();
+              setCreatingAccount(true); // Set creatingAccount to true for account creation
+              login(); // Trigger Google login
             }}
-            className="  py-2 text-md w-1/6 min-w-56 leading-6 mt-1 -translate-y-2 items-center justify-center bg-sky-950 font-bold text-white border border-slate-200 hover:border-blue-200 rounded-xl px-4 py-1 hover:bg-sky-100 hover:text-sky-950 hover:border hover:border-sky-950"
-            // style={{ fontFamily: "Wildly Sans, sans-serif" }}
+            className="py-2 text-md w-1/6 min-w-56 leading-6 mt-1 -translate-y-2 items-center justify-center bg-sky-950 font-bold text-white border border-slate-200 hover:border-blue-200 rounded-xl px-4 py-1 hover:bg-sky-100 hover:text-sky-950 hover:border hover:border-sky-950"
           >
             Create an account with Google
           </button>
-          {errorMsg && <p className="text-red-500">{errorMsg}</p>}
+          {errorMsg && <p className="text-red-500">{errorMsg}</p>}{" "}
+          {/* Display error message if exists */}
         </>
       ) : (
-        navigate(newUser ? "/new-user" : "/relations")
+        navigate(newUser ? "/new-user" : "/relations") // Navigate based on newUser state
       )}
-      {fromLink && navigate("/chat")}
+      {fromLink && navigate("/chat")}{" "}
+      {/* Navigate to chat if fromLink is true */}
     </div>
   );
 }

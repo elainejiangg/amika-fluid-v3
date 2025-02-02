@@ -1,3 +1,19 @@
+/**
+ * main.jsx
+ *
+ * This file serves as the entry point for the React application. It sets up
+ * the routing for the application using React Router and wraps the application
+ * in necessary providers for authentication and overlays.
+ *
+ * Key functionalities include:
+ * - Creating a browser router for managing application routes.
+ * - Defining routes for different components in the application.
+ * - Wrapping the application in context providers for Google OAuth, authentication,
+ *   and overlay management.
+ *
+ * The component utilizes React Router for routing and ReactDOM for rendering.
+ */
+
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom"; // react router updates only the portion of the website that is changed instead of the entire website; essential for responsiveness
@@ -12,7 +28,7 @@ import Settings from "./components/Settings";
 import Chat from "./components/Chat";
 import NewUser from "./components/NewUser";
 import { OverlayProvider } from "./OverlayProvider";
-import UserInfoForm from "./components/UserInfoForm"; 
+import UserInfoForm from "./components/UserInfoForm";
 
 const clientId =
   "182357756258-759f39bnehg84lammns3g3rcvnqjte2u.apps.googleusercontent.com";

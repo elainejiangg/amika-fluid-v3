@@ -1,26 +1,42 @@
+/**
+ * NewUser.jsx
+ *
+ * This component represents the user registration interface for new users.
+ * It allows users to input their personal information, including their name,
+ * pronouns, profile picture, and interests. The component handles form submission
+ * and communicates with the backend to create a new user account.
+ *
+ * Key functionalities include:
+ * - Managing form state and validation.
+ * - Sending user data to the backend for account creation.
+ * - Navigating users to the chat interface upon successful registration.
+ * - Displaying error messages for invalid input or submission failures.
+ *
+ * The component utilizes React hooks for state management and side effects.
+ */
+
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../AuthContext";
+import { AuthContext } from "../AuthContext"; // Import AuthContext for user authentication
 import { OverlayContext } from "../OverlayProvider"; // Import OverlayContext
 
 export default function NewUser() {
-  const { profile } = useContext(AuthContext); // get user profile
+  const { profile } = useContext(AuthContext); // Access user profile from AuthContext
   const { startOverlaySequence } = useContext(OverlayContext); // Use OverlayContext
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState(() => {
-    const [first_name, ...last_name] = profile.name.split(" ");
-    return {
-      first_name: first_name || "",
-      last_name: last_name.join(" ") || "",
-      pronouns: "<they/them>",
-      picture: profile.picture || "",
-      interests: "",
-    };
-  });
+  const navigate = useNavigate(); // Hook to programmatically navigate
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    pronouns: "<they/them>",
+    picture: "",
+    interests: "",
+  }); // State to hold form data
+  const [error, setError] = useState(""); // State to hold error messages
 
+  // Function to handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [name]: value }); // Update form data state
   };
 
   const getGoogleDriveImageUrl = (url) => {
@@ -33,38 +49,37 @@ export default function NewUser() {
     return url;
   };
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
+  // Function to handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission behavior
     try {
-      console.log("profile email: ", profile.email);
       const response = await fetch("http://localhost:5050/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          googleId: profile.id,
-          email: profile.email,
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          pronouns: formData.pronouns,
-          picture: formData.picture,
-          interests: formData.interests,
+          googleId: profile.id, // Include Google ID from profile
+          email: profile.email, // Include email from profile
+          ...formData, // Include form data
         }),
       });
 
-      if (response.ok) {
-        await fetch(`http://localhost:5050/users/${profile.id}/thread_ids`, {
-          method: "POST",
-        });
-        console.log("User and thread IDs created successfully");
-        startOverlaySequence(); // Start overlay sequence using context
-        navigate("/chat");
-      } else {
-        console.error("Error creating user");
+      if (!response.ok) {
+        throw new Error("Failed to create user account"); // Throw error if response is not ok
       }
+
+      const data = await response.json(); // Parse response data
+      console.log("User created successfully:", data);
+      await fetch(`http://localhost:5050/users/${profile.id}/thread_ids`, {
+        method: "POST",
+      });
+      console.log("User and thread IDs created successfully");
+      startOverlaySequence(); // Start overlay sequence using context
+      navigate("/chat"); // Navigate to chat interface upon successful registration
     } catch (err) {
-      console.error("Error:", err);
+      console.error("Error creating user:", err);
+      setError("Failed to create user account. Please try again."); // Set error message
     }
   };
 
@@ -73,99 +88,75 @@ export default function NewUser() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen w-screen items-center">
+    <div className="flex flex-col justify-center items-center h-screen w-screen bg-gradient-to-tr from-indigo-200 via-white to-violet-100">
+      <h1 className="font-black text-5xl text-sky-950 wildy-sans">
+        Create Your Account
+      </h1>
+      {error && <p className="text-red-500">{error}</p>}{" "}
+      {/* Display error message if exists */}
       <form
-        onSubmit={onSubmit}
-        className="flex flex-col text-left justify-center w-3/4 min-w-64 h-5/8 min-h-64 pt-10 bg-gradient-to-t from-indigo-100 from-10% via-blue-50 to-sky-50 p-5 rounded-3xl"
+        onSubmit={handleSubmit} // Handle form submission
+        className="flex flex-col w-1/2 mt-4"
       >
-        <h1 className="font-bold text-2xl">Your Information</h1>
-        <div className="p-2 ">
-          First Name:{" "}
+        <label className="text-lg">
+          First Name:
           <input
             type="text"
             name="first_name"
-            className=" placeholder:text-slate-400 focus:ring-0 rounded-lg px-3 py-1 w-full "
-            placeholder="Enter your first name"
             value={formData.first_name}
-            onChange={handleChange}
-            autocomplete="off"
+            onChange={handleChange} // Handle input changes
+            required
+            className="border rounded p-2 mt-1"
           />
-          {!isFormValid() && (
-            <span style={{ color: "red" }}>First name cannot be empty</span>
-          )}
-        </div>
-        <div className="p-2">
-          Last Name:{" "}
+        </label>
+        <label className="text-lg mt-2">
+          Last Name:
           <input
             type="text"
             name="last_name"
-            className=" placeholder:text-slate-400 focus:ring-0 rounded-lg px-3 py-1 w-full"
-            placeholder="Enter your last name"
             value={formData.last_name}
-            onChange={handleChange}
-            autocomplete="off"
+            onChange={handleChange} // Handle input changes
+            required
+            className="border rounded p-2 mt-1"
           />
-        </div>
-        <div className="p-2">
-          Pronouns:{" "}
+        </label>
+        <label className="text-lg mt-2">
+          Pronouns:
           <input
             type="text"
             name="pronouns"
-            className=" placeholder:text-slate-400 focus:ring-0 rounded-lg px-3 py-1 w-full"
-            placeholder="Enter your preferred pronouns (she/her, he/him, they/them, etc.)"
-            value={formData.pronouns !== "<they/them>" ? formData.pronouns : ""}
-            onChange={handleChange}
-            autocomplete="off"
+            value={formData.pronouns}
+            onChange={handleChange} // Handle input changes
+            className="border rounded p-2 mt-1"
           />
-        </div>
-        <div className="p-2">
-          Interests:{" "}
+        </label>
+        <label className="text-lg mt-2">
+          Profile Picture URL:
+          <input
+            type="text"
+            name="picture"
+            value={formData.picture}
+            onChange={handleChange} // Handle input changes
+            className="border rounded p-2 mt-1"
+          />
+        </label>
+        <label className="text-lg mt-2">
+          Interests:
           <input
             type="text"
             name="interests"
-            className=" placeholder:text-slate-400 focus:ring-0 rounded-lg px-3 py-1 w-full"
-            placeholder="Enter your interests, hobbies, etc."
             value={formData.interests}
-            onChange={handleChange}
-            autocomplete="off"
+            onChange={handleChange} // Handle input changes
+            className="border rounded p-2 mt-1"
           />
-        </div>
-        <div className="p-2">
-          Profile Picture:
-          <div className="flex flex-row">
-            <img
-              // src="https://drive.google.com/thumbnail?id=13m-LgN_qlUIi1JHTNPjcgw0rDXjqEKQ1"
-              src={getGoogleDriveImageUrl(formData.picture)}
-              className=" w-full h-full object-cover rounded-full mr-4 max-w-24 w-1/5"
-              alt="Profile Picture"
-              onError={(e) => console.error("Image failed to load:", e)}
-            />
-            {/* <img
-              src={formData.picture}
-              alt="Profile"
-              className="w-20 rounded-full mr-4"
-            /> */}
-            <input
-              type="text"
-              name="picture"
-              className=" placeholder:text-slate-400 focus:ring-0 rounded-lg px-3 py-1 w-full"
-              placeholder="Enter a link to your picture"
-              value={formData.picture}
-              onChange={handleChange}
-              autocomplete="off"
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-center">
-          <button
-            type="submit"
-            disabled={!isFormValid()}
-            className=" my-1 font-semibold py-1.5 p-2 bg-sky-950 text-center text-white rounded-md w-1/3 min-w-56 text-sm md:text-lg hover:bg-sky-100 hover:text-sky-950 hover:border hover:border-sky-950"
-          >
-            Submit
-          </button>
-        </div>
+        </label>
+        <button
+          type="submit"
+          disabled={!isFormValid()}
+          className="mt-4 py-2 bg-sky-950 text-white rounded-lg"
+        >
+          Create Account
+        </button>
       </form>
     </div>
   );

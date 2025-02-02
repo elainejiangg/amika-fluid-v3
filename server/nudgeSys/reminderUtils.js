@@ -5,9 +5,7 @@ import cron from "node-cron";
 import fetch from "node-fetch";
 import { generateToken } from "../middleware/jwtUtils.js";
 
-const OPENAI_API_KEY =
-  "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";
-
+const OPENAI_API_KEY = "***"; // REPLACE WITH YOUR OPENAI API KEY
 const GPT_PROMPT = `Write in HTML but do not include !DOCTYPE html, html, and body tags (just jump straight into <p> tags). You will generate a 20 - 50 word email body (please ONLY write an addressing start, and an email body, no subject title)
   that asks the recipent if they have contacted the user via a certain method of contact. Mention that if they have not contacted the person 
   suggest to the recipient topics of conversation to talk about between the recipient and their 
@@ -15,7 +13,6 @@ const GPT_PROMPT = `Write in HTML but do not include !DOCTYPE html, html, and bo
   Please use any of the following information about their relation to generate this email and information 
   of the recipent to address the email to. Don't sign off with anything. The second will be something like "No, I have not met have the relation but I would like assistance". 
   Keep a encouraging, casual tone.`;
-
 const scheduledJobs = new Map(); // Store scheduled jobs
 
 async function getGptRecommendation(relationInfo) {
@@ -96,11 +93,6 @@ export async function scheduleEmail(reminder, googleId, userInfo) {
       const chatLink_notChatted = `http://localhost:5173/?token=${token_notChatted}`;
       console.log("EMAIL BODY", emailBody);
 
-      // const emailContent = `${emailBody}\n\nClick [here](${chatLink}) to chat with Amika.`;
-      // const emailContent = `${emailBody} <br>
-      // <a href="${chatLink_chatted}" style="background-color: #d2dffa; color: #2d60cf; padding: 5px; text-decoration: none; font-weight: bold; border-radius: 10px;">Yes, I have spoken to them; let's chat!</a>
-      // <a href="${chatLink_notChatted}" style="background-color: #dcd6ff; color: #5441c4; padding: 5px; text-decoration: none; font-weight: bold; border-radius: 10px;">No, I have not spoken to them, but I'd like some assistance</a>`;
-
       const emailContent = `
       ${emailBody}
       <style>
@@ -140,7 +132,6 @@ export async function scheduleEmail(reminder, googleId, userInfo) {
         emailContent,
         { isHtml: true } // Assuming sendEmail function accepts an options parameter to specify content type
       );
-      //   await removeOccurrence(relationId, occurrence);
     });
 
     // Store the job in the map
@@ -192,81 +183,3 @@ export function cancelScheduledEmails(googleId) {
     console.log(`Cancelled all scheduled emails for user ${googleId}`);
   }
 }
-
-// export async function fetchAndScheduleReminders(googleId) {
-//   try {
-//     const relationResponse = await fetch(
-//       `http://localhost:5050/users/${googleId}/reminders`
-//     );
-//     if (!relationResponse.ok) {
-//       throw new Error("Failed to fetch reminders");
-//     }
-
-//     const relations = await relationResponse.json();
-//     console.log("RELATIONS: ", relations);
-
-//     const userResponse = await fetch(
-//       `http://localhost:5050/users/${googleId}/info`
-//     );
-//     if (!userResponse.ok) {
-//       throw new Error("Failed to fetch user information");
-//     }
-
-//     const userInfo = await userResponse.json();
-//     console.log("USER INFO: ", userInfo);
-//     relations.forEach((relation) => {
-//       if (relation.reminder_enabled) {
-//         relation.reminder_frequency.forEach((freq) => {
-//           scheduleEmail(
-//             {
-//               method: freq.method,
-//               relationName: relation.name,
-//               occurrences: freq.occurrences,
-//               relationId: relation._id,
-//             },
-//             googleId,
-//             userInfo
-//           );
-//         });
-//       }
-//     });
-//     console.log("successful fetch and schedule");
-//   } catch (error) {
-//     console.error("Error fetching and scheduling reminders:", error);
-//   }
-// }
-
-// export async function fetchAndScheduleReminders(googleId) {
-//   try {
-//     const response = await fetch(
-//       `http://localhost:5050/users/${googleId}/reminders`
-//     );
-//     if (!response.ok) {
-//       throw new Error("Failed to fetch reminders");
-//     }
-//     const users = await response.json();
-//     users.forEach((user) => {
-//       user.relations.forEach((relation) => {
-//         if (relation.reminder_enabled) {
-//           relation.reminder_frequency.forEach((freq) => {
-//             scheduleEmail({
-//               method: freq.method,
-//               relationName: relation.name,
-//               occurrences: freq.occurrences,
-//               relationId: relation._id,
-//             });
-//           });
-//         }
-//       });
-//     });
-//   } catch (error) {
-//     console.error("Error fetching and scheduling reminders:", error);
-//   }
-// }
-
-// async function removeOccurrence(relationId, occurrence) {
-//   await User.updateOne(
-//     { "relations._id": relationId },
-//     { $pull: { "relations.$.reminder_frequency.$[].occurrences": occurrence } }
-//   );
-// }
