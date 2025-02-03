@@ -5,7 +5,7 @@ import { verifyToken } from "../middleware/authJwtToken.js"; // Import the verif
 
 const router = express.Router();
 const openai = new OpenAI({
-  apiKey: "***",
+  apiKey: "***", // REPLACE WITH YOUR OPENAI API TOKEN
 });
 
 /////////////////////////////////////////////////////

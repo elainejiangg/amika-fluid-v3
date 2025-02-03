@@ -1,11 +1,22 @@
+/**
+ * This module provides middleware for verifying JSON Web Tokens (JWT) in incoming requests.
+ * It checks the authorization header for a valid token and verifies it using the secret key.
+ * 
+ * Key functionalities include:
+ * - `verifyToken(req, res, next)`: Middleware function that extracts the token from the
+ *   authorization header, verifies it, and attaches the decoded user information to the
+ *   request object if the token is valid. If the token is missing or invalid, it sends
+ *   an appropriate error response.
+ * 
+ * This middleware is crucial for protecting routes that require user authentication,
+ * ensuring that only authorized users can access certain resources.
+ */
+
 import jwt from "jsonwebtoken";
 
 const SECRET_KEY = process.env.JWT_SECRET_KEY || "***";
 
 export function verifyToken(req, res, next) {
-  // console.log("REQUEST QUERY: ", req.query);
-  // const token = req.query.token;
-  // console.log("Token received:", token); // Log the received token
   console.log("REQUEST HEADERS: ", req.headers);
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1];

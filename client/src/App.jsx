@@ -1,6 +1,4 @@
 /**
- * App.jsx
- *
  * This component serves as the main entry point for the application. It sets up the
  * routing for the application, manages the visibility of the navigation bar, and
  * handles the overall layout of the application.
@@ -9,8 +7,6 @@
  * - Managing the visibility of the Navbar component based on user interactions.
  * - Rendering child components using React Router's Outlet for nested routing.
  * - Providing a toggle function to show or hide the Navbar.
- *
- * The component utilizes React hooks for state management and side effects.
  */
 
 import { useState } from "react"; // Import useState hook for managing state

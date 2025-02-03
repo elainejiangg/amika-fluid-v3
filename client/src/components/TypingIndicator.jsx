@@ -1,3 +1,4 @@
+// For chat visual effect, when waiting for OpenAI Assistant API to respond, show three dot "waiting" animation
 import React from "react";
 
 const TypingIndicator = () => {

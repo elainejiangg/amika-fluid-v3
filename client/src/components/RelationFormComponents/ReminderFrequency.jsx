@@ -6,10 +6,11 @@ import CustomRecurrence from "./Modals/CustomRecurrence";
 import isEqual from "lodash.isequal";
 import cloneDeep from "lodash.clonedeep";
 
-// RRule.DAILY    // 3
-// RRule.WEEKLY   // 2
-// RRule.MONTHLY  // 1
-// RRule.YEARLY   // 0
+// NOTE:
+// RRule.DAILY    --> 3
+// RRule.WEEKLY   --> 2
+// RRule.MONTHLY  --> 1
+// RRule.YEARLY   --> 0
 
 export default function ReminderFrequency({
   reminderTriples,
@@ -292,45 +293,6 @@ export default function ReminderFrequency({
                     dateFormat="h:mm aa"
                   />
                 </div>
-                {/* <div>
-                  <h3>Occurrences:</h3>
-                  <ul>
-                    {(reminder.showAll
-                      ? reminder.occurrences
-                      : reminder.occurrences?.slice(0, 3)
-                    )?.map((date, dateIndex) => {
-                      const dateObject = new Date(date);
-                      return (
-                        <li key={dateIndex}>
-                          {dateObject.toLocaleDateString([], {
-                            weekday: "short",
-                          })}{" "}
-                          {dateObject.toLocaleDateString()}{" "}
-                          {dateObject.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          })}{" "}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                  {reminder.occurrences?.length > 3 && (
-                    <button
-                      className="text-blue-500"
-                      type="button"
-                      onClick={() =>
-                        handleReminderChange(
-                          index,
-                          "showAll",
-                          !reminder.showAll
-                        )
-                      }
-                    >
-                      {reminder.showAll ? "Show Less" : "Show All"}
-                    </button>
-                  )}
-                </div> */}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <button

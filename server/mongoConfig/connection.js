@@ -1,3 +1,11 @@
+/**
+ * This module establishes a connection to a MongoDB database using Mongoose.
+ * It defines the connection URI and exports a function to connect to the database.
+ * 
+ * The `connectDB` function should be called during the application startup
+ * to ensure that the application can interact with the database.
+ */
+
 import mongoose from "mongoose";
 
 // Format of connection url: mongodb+srv://<username>:<password>@<cluster-url>/<dbname>?retryWrites=true&w=majority

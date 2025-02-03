@@ -1,6 +1,4 @@
 /**
- * AuthContext.jsx
- *
  * This module provides the authentication context for the application.
  * It manages the user's authentication state and provides methods to
  * update the user's profile information.

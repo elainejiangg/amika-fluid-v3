@@ -1,3 +1,8 @@
+/**
+ * This module serves as the entry point for the application, initializing the Express server
+ * and setting up middleware, routes, and database connections.
+ */
+
 import express from "express"; // express is web framework for node.js
 import cors from "cors"; // CORS (cross-origin resource sharing) enables secure requests and data transfers from outside origins
 import connectDB from "./mongoConfig/connection.js";

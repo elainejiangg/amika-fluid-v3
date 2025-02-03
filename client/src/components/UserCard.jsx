@@ -1,8 +1,8 @@
-// export default RelationRow;
-import React, { useContext, useState } from "react";
+// For displaying the logged-in user information in relations tab along with other relations
+
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
-import { RRule } from "rrule";
 
 // To display each relation row in the table
 const UserCard = (props) => {

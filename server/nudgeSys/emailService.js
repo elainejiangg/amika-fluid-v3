@@ -1,3 +1,6 @@
+// This module provides functionality for sending emails using Nodemailer.
+// It allows users to send emails with specified recipients, subjects, and content.
+// The service is configured to use a Gmail for sending emails
 import nodemailer from "nodemailer";
 
 export async function sendEmail(to, subject, text, options = {}) {
@@ -7,7 +10,7 @@ export async function sendEmail(to, subject, text, options = {}) {
       service: "gmail",
       auth: {
         user: "amikachats@gmail.com", // Replace with your email
-        pass: "jfiy xfic zkdv crmx", // Replace with your email password or app password
+        pass: "jfiy xfic zkdv crmx", // Replace with your email password or app password (note this is the correct password for amikachats@gmail.com)
       },
     });
 

@@ -1,6 +1,4 @@
 /**
- * main.jsx
- *
  * This file serves as the entry point for the React application. It sets up
  * the routing for the application using React Router and wraps the application
  * in necessary providers for authentication and overlays.

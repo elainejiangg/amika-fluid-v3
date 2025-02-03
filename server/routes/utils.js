@@ -1,3 +1,15 @@
+/**
+ * This module provides utility functions for managing user-related data
+ * and interactions within the application. It includes functions for
+ * fetching user-specific information from the database, such as assistant
+ * IDs and thread IDs, which are essential for facilitating chat interactions
+ * with AI assistants.
+ * 
+ * Key functionalities include:
+ * - Fetching the first and second assistant IDs for a user based on their Google ID.
+ * - Fetching the first and second thread IDs associated with the user's assistants.
+ */
+
 export async function fetchUserRelations(googleId) {
   try {
     const relationResponse = await fetch(

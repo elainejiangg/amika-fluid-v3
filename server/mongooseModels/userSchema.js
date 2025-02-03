@@ -1,3 +1,7 @@
+// This module defines the Mongoose schema for user data in a MongoDB database.
+// It outlines the structure of user documents, including fields for personal
+// information, relations, and contact history.
+ 
 import mongoose from "mongoose";
 
 const contactFrequencySchema = new mongoose.Schema({
@@ -21,15 +25,6 @@ const interactionSchema = new mongoose.Schema(
   }
 );
 
-// const frequencySchema = new mongoose.Schema({
-//   startDate: { type: Date, required: true },
-//   endDate: { type: Date, required: true },
-//   frequency: { type: String, required: true },
-//   weekdays: { type: [Boolean], required: true },
-//   time: { type: Date, required: true },
-//   occurrences: { type: [Date], required: true },
-// });
-
 const frequencySchema = new mongoose.Schema({
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
@@ -47,7 +42,7 @@ const reminderFrequencySchema = new mongoose.Schema({
   frequency: { type: frequencySchema, required: true },
   occurrences: { type: [Date], required: true },
 });
-//maybe store in another field, next reminder times and dates
+// maybe store in another field, next reminder times and dates
 
 const relationSchema = new mongoose.Schema({
   name: { type: String, required: true }, // Profile's name
@@ -56,7 +51,7 @@ const relationSchema = new mongoose.Schema({
   relationship_type: { type: String, required: false },
   contact_frequency: { type: [contactFrequencySchema], required: false }, // [method, [frequency: [number, unit of time]]]
   overview: { type: String, required: false }, //contained is interests, personality, etc.
-  contact_history: { type: [interactionSchema], required: false }, //recent & notable
+  contact_history: { type: [interactionSchema], required: false }, // recent & notable interactiosn
   reminder_frequency: { type: [reminderFrequencySchema], required: false },
   reminder_enabled: { type: Boolean, required: false },
 });

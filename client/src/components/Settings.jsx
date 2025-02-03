@@ -1,6 +1,4 @@
 /**
- * Settings.jsx
- *
  * This component represents the settings page for the user. It allows users to manage
  * their account settings, including updating their email, managing reminders, and viewing
  * their relations. The component fetches user data from the backend and provides forms

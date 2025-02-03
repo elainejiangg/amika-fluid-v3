@@ -1,6 +1,4 @@
 /**
- * NewUser.jsx
- *
  * This component represents the user registration interface for new users.
  * It allows users to input their personal information, including their name,
  * pronouns, profile picture, and interests. The component handles form submission

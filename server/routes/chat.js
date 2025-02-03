@@ -1,12 +1,28 @@
+/**
+ * This module defines the routes and logic for handling chat interactions
+ * in the application. It utilizes OpenAI's Assistants API to facilitate conversations
+ * between users and AI assistants, managing user-specific threads and
+ * assistants.
+ * 
+ * Key functionalities include:
+ * - Initializing first and second assistants for users based on their Google ID.
+ * - Sending user messages to the appropriate assistant and retrieving responses.
+ * - Processing messages to determine if updates to user relations are necessary,
+ *   and handling the scheduling of reminders based on user interactions.
+ * - Watching for changes in user data and updating assistant instructions accordingly.
+ * 
+ * The module exports an Express router that defines the following endpoints:
+ * - POST /prompt: Handles user prompts and retrieves responses from the first assistant.
+ * - POST /ask: Similar to /prompt, but may handle different types of queries.
+ * 
+ */
+
 import {
-  fetchUserRelations,
   fetchUserFirstAssistantId,
   fetchUserSecondAssistantId,
-  updateUserAssistantId,
   fetchUserFirstThreadId,
   fetchUserSecondThreadId,
 } from "./utils.js";
-import { ObjectId } from "mongodb";
 import {
   scheduleEmail,
   cancelScheduledEmails,
@@ -17,7 +33,6 @@ import express from "express";
 import OpenAI from "openai";
 import { User } from "../mongooseModels/userSchema.js";
 import { fetchAndScheduleReminders } from "../nudgeSys/reminderUtils.js";
-import { verifyToken } from "../middleware/authJwtToken.js"; // Import the verifyToken middleware
 
 const openai = new OpenAI({
   apiKey: "***",
@@ -422,11 +437,8 @@ async function secondAssistantProcess(googleId, botMessage, userMessage) {
   const third = secondThreadMessages.data[2].content[0].text.value;
   console.log("THIRD", third);
   // Parse the JSON response
-  // Parse the JSON response
   let parsedResponse;
   try {
-    // parsedResponse = JSON.parse(latestMsg);
-    // console.log("parsedResponse:", parsedResponse);
     // Find the first '{' and the last '}' to extract the JSON content
     const startIndex = latestMsg.indexOf("{");
     const endIndex = latestMsg.lastIndexOf("}") + 1;
@@ -458,9 +470,6 @@ async function secondAssistantProcess(googleId, botMessage, userMessage) {
   let cleanedRequestBody;
   try {
     cleanedRequestBody = request_body;
-    // JSON.parse(
-    //   removeComments(JSON.stringify(request_body))
-    // ); // FUNKY! removed this made it work
   } catch (error) {
     console.error("Error parsing cleaned request body:", error);
     return;
@@ -527,7 +536,6 @@ async function watchUserChanges(googleId) {
       {
         $match: {
           "fullDocument.googleId": googleId,
-          // "updateDescription.updatedFields.relations": { $exists: true },
         },
       },
     ],

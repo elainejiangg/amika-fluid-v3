@@ -1,6 +1,4 @@
 /**
- * Login.jsx
- *
  * This component represents the login interface for users to authenticate
  * using Google or a JWT token link. It manages user state, handles login
  * processes, and navigates users to the appropriate pages based on their

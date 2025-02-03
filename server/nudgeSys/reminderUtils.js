@@ -1,5 +1,6 @@
+// This module provides functionality for scheduling email reminders based on user relations.
+// It utilizes OpenAI's GPT model to generate email content dynamically.
 import { sendEmail } from "./emailService.js";
-// import { Configuration, OpenAIApi } from "openai";
 import { User } from "../mongooseModels/userSchema.js";
 import cron from "node-cron";
 import fetch from "node-fetch";
@@ -33,9 +34,10 @@ async function getGptRecommendation(relationInfo) {
   });
 
   const data = await response.json();
-  return data.choices[0].message.content;
+  return data.choices[0].message.content; // Return the generated content
 }
 
+// Function to schedule an email reminder
 export async function scheduleEmail(reminder, googleId, userInfo) {
   const { method, relationName, occurrences, relationId } = reminder;
   occurrences.forEach((occurrence) => {
@@ -49,6 +51,7 @@ export async function scheduleEmail(reminder, googleId, userInfo) {
     );
 
     const job = cron.schedule(cronTime, async () => {
+      // Fetch relation information from the server
       const relationResponse = await fetch(
         `http://localhost:5050/users/${googleId}/relations/${relationId}`
       );
@@ -93,6 +96,7 @@ export async function scheduleEmail(reminder, googleId, userInfo) {
       const chatLink_notChatted = `http://localhost:5173/?token=${token_notChatted}`;
       console.log("EMAIL BODY", emailBody);
 
+      // Construct the email content with in-app links, letting users be automatically signed in if they click on the links
       const emailContent = `
       ${emailBody}
       <style>
@@ -126,6 +130,7 @@ export async function scheduleEmail(reminder, googleId, userInfo) {
         `Sending email for ${relationName} at ${new Date().toString()} for ${method}`
       );
 
+      // Send the email using the sendEmail function
       await sendEmail(
         userInfo.email,
         `Reminder to Connect with ${relationName}! `,
@@ -142,6 +147,7 @@ export async function scheduleEmail(reminder, googleId, userInfo) {
   });
 }
 
+// Function to fetch users and schedule their reminders
 export async function fetchAndScheduleReminders() {
   try {
     const users = await User.find({});
@@ -175,11 +181,12 @@ export async function fetchAndScheduleReminders() {
   }
 }
 
+// Function to cancel scheduled emails for a user
 export function cancelScheduledEmails(googleId) {
   const jobs = scheduledJobs.get(googleId);
   if (jobs) {
-    jobs.forEach((job) => job.stop());
-    scheduledJobs.delete(googleId);
+    jobs.forEach((job) => job.stop()); // Stop each scheduled job
+    scheduledJobs.delete(googleId); // Remove the user from the scheduled jobs map
     console.log(`Cancelled all scheduled emails for user ${googleId}`);
   }
 }

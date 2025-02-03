@@ -1,6 +1,4 @@
 /**
- * RelationCard.jsx
- *
  * This component represents a card interface for displaying information about a user's relation.
  * It shows details such as the relation's name, picture, contact frequency, and interaction history.
  * The component also allows users to edit or delete the relation.
@@ -27,7 +25,7 @@ const reminderFreqMap = {
 
 const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-// To display each relation row in the table
+// To display each relation row/card in the table
 const RelationCard = (props) => {
   const [expandedReminders, setExpandedReminders] = useState({}); // State to manage expanded reminder details
   const { profile } = useContext(AuthContext); // Get user profile from AuthContext

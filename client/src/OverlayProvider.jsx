@@ -1,6 +1,4 @@
 /**
- * OverlayProvider.jsx
- *
  * This module provides the context for managing overlay instructions in the application.
  * It allows components to start and stop overlay sequences, as well as track the current
  * step in the overlay.
